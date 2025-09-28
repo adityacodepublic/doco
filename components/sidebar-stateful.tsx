@@ -41,6 +41,10 @@ interface MorphikSidebarStatefulProps {
   onSettingsViewChange?: (show: boolean) => void;
   activeSettingsTab?: string;
   onSettingsTabChange?: (tab: string) => void;
+  // Connection-related props (for URI editing in production)
+  showEditableUri?: boolean;
+  connectionUri?: string | null;
+  onUriChange?: (newUri: string) => void;
 }
 
 export function MorphikSidebarRemote({
@@ -60,6 +64,9 @@ export function MorphikSidebarRemote({
   onSettingsViewChange,
   activeSettingsTab = "api-keys",
   onSettingsTabChange,
+  showEditableUri = false,
+  connectionUri,
+  onUriChange,
 }: MorphikSidebarStatefulProps) {
   const handleChatClick = React.useCallback(() => {
     if (typeof window !== "undefined") {
@@ -107,6 +114,9 @@ export function MorphikSidebarRemote({
       onSettingsViewChange={onSettingsViewChange}
       activeSettingsTab={activeSettingsTab}
       onSettingsTabChange={onSettingsTabChange}
+      showEditableUri={showEditableUri}
+      connectionUri={connectionUri}
+      onUriChange={onUriChange}
       navigation={navigation}
       logoClickHandler={logoClickHandler}
       collapsible="icon"
