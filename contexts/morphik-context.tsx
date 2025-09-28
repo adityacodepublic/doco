@@ -32,8 +32,9 @@ const MorphikContext = createContext<MorphikContextType | undefined>(undefined);
 function getStoredConnectionUri(): string | null {
   if (typeof window === "undefined") return null;
   try {
-    const stored = window.localStorage.getItem(CONNECTION_URI_STORAGE_KEY);
-
+    // const stored = window.localStorage.getItem(CONNECTION_URI_STORAGE_KEY);
+    const stored =
+      "morphik://docoverload:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNTQ2NmEyY2ItY2M2MS00ODlmLTkzOTUtMTZlOTk5ZTJhNWM1IiwiYXBwX2lkIjoidTc2YjJubXBlaCIsIm5hbWUiOiJkb2NvdmVybG9hZCIsInBlcm1pc3Npb25zIjpbInJlYWQiLCJ3cml0ZSJdLCJleHAiOjE3OTA1MjY4MDIsInR5cGUiOiJkZXZlbG9wZXIiLCJlbnRpdHlfaWQiOiI1NDY2YTJjYi1jYzYxLTQ4OWYtOTM5NS0xNmU5OTllMmE1YzUifQ.k29mtQ6ACd314-jIdsHurSTBkd_NyaW1w0cvXMF7vSM@api.morphik.ai";
     // Clean up malformed URIs
     if (stored && stored.includes("://morphik://")) {
       // Remove the leading protocol from malformed URIs like https://morphik://...
