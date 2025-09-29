@@ -157,7 +157,7 @@ function DocumentsContent() {
           <RefreshCw className="h-4 w-4" />
           <span className="ml-1">Refresh</span>
         </Button>
-        <Button
+        {/* <Button
           variant="default"
           size="sm"
           onClick={() => {
@@ -167,7 +167,7 @@ function DocumentsContent() {
         >
           <Upload className="mr-2 h-4 w-4" />
           Upload
-        </Button>
+        </Button> */}
       </>
     );
 

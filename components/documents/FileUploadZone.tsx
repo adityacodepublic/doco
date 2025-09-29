@@ -36,7 +36,7 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({ onFilesAdded, isUploadi
         "flex min-h-[200px] flex-col items-center justify-center gap-4 text-center",
         isDragging || isDragActive
           ? "border-primary bg-primary/5 shadow-lg"
-          : "border-border bg-card hover:bg-accent/5",
+          : "border-primary/40 bg-card hover:bg-accent/5",
         isUploading ? "cursor-progress" : "cursor-pointer",
         isUploading && "opacity-75"
       )}
