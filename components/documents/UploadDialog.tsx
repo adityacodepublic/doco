@@ -21,7 +21,13 @@ interface UploadDialogProps {
   showUploadDialog: boolean;
   setShowUploadDialog: (show: boolean) => void;
   loading: boolean;
-  onFileUpload: (file: File | null, metadata: string, rules: string, useColpali: boolean) => Promise<void>;
+  onFileUpload: (
+    file: File | null,
+    metadata: string,
+    rules: string,
+    useColpali: boolean,
+    departments?: string[]
+  ) => Promise<void>;
   onBatchFileUpload: (files: File[], metadata: string, rules: string, useColpali: boolean) => Promise<void>;
   onTextUpload: (text: string, metadata: string, rules: string, useColpali: boolean) => Promise<void>;
 }

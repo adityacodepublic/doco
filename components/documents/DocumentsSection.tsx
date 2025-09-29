@@ -28,6 +28,9 @@ import { useDocuments, clearDocumentsCache } from "@/hooks/useDocuments";
 import { useUnorganizedDocuments, clearUnorganizedDocumentsCache } from "@/hooks/useUnorganizedDocuments";
 
 import { Document, FolderSummary } from "@/components/types";
+import FileUploadZone from "./FileUploadZone";
+import { FileList, FileMetadata } from "./FileList";
+import { ProcessedData, processFile } from "@/lib/services/fileProcessor";
 
 // Custom hook for drag and drop functionality
 function useDragAndDrop({ onDrop, disabled = false }: { onDrop: (files: File[]) => void; disabled?: boolean }) {
@@ -151,6 +154,10 @@ const DocumentsSection = React.forwardRef<
       return apiBaseUrl;
     }, [apiBaseUrl]);
 
+    // Gemini extract data
+    const [files, setFiles] = useState<FileMetadata[]>([]);
+    const [isUploading] = useState(false);
+
     // State for selected folder and documents
     const [selectedFolder, setSelectedFolder] = useState<string | null>(initialFolder);
     const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
@@ -249,6 +256,16 @@ const DocumentsSection = React.forwardRef<
       });
     }, [combinedRootItems, searchQuery]);
 
+    const folderNames = useMemo(() => {
+      return filteredRootItems
+        .filter(
+          (item): item is typeof item & { filename: string } =>
+            item.content_type === "folder" && typeof item.filename === "string"
+        )
+        .map(item => item.filename);
+    }, []);
+
+    console.log("filteredRootItems", filteredRootItems);
     // State for delete confirmation modal
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<string | null>(null); // For single delete: stores ID
@@ -503,18 +520,8 @@ const DocumentsSection = React.forwardRef<
           console.log("Final download URL:", downloadUrl);
 
           // Create a temporary link to trigger download
-          const link = window.document.createElement("a");
-          link.href = downloadUrl;
-
-          // Get the document name for the download
-          const docToDownload = documents.find(doc => doc.external_id === documentId);
-          if (docToDownload?.filename) {
-            link.download = docToDownload.filename;
-          }
-
-          window.document.body.appendChild(link);
-          link.click();
-          window.document.body.removeChild(link);
+          // Open the download URL in a new tab/window
+          window.open(downloadUrl, "_blank");
 
           console.log("Download initiated successfully");
         } catch (error) {
@@ -744,12 +751,65 @@ const DocumentsSection = React.forwardRef<
       return "indeterminate";
     }, [selectedDocuments.length, documents.length, selectedFolder, combinedRootItems]);
 
+    // Automatic file uploader
+    const handleFilesAdded = async (newFiles: File[]) => {
+      const newFileItems = newFiles.map(file => ({
+        id: `${file.name}-${file.lastModified}`,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified,
+        status: "idle" as const,
+        progress: 0,
+        fileObject: file, // Preserve the original File object
+      }));
+
+      setFiles(prev => [...prev, ...newFileItems]);
+      await processFiles(newFileItems);
+    };
+
+    const processFiles = async (filesToProcess: FileMetadata[]) => {
+      for (const file of filesToProcess) {
+        try {
+          setFiles(prev => prev.map(f => (f.id === file.id ? { ...f, status: "uploading", progress: 0 } : f)));
+
+          // Simulate upload progress
+          for (let progress = 0; progress <= 100; progress += 10) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            setFiles(prev => prev.map(f => (f.id === file.id ? { ...f, progress } : f)));
+          }
+
+          if (!file.fileObject) {
+            throw new Error("File object not found");
+          }
+          const processedData = await handleFileUpload(file.fileObject, undefined, undefined, undefined, folderNames);
+
+          setFiles(prev =>
+            prev.map(f =>
+              f.id === file.id
+                ? { ...f, status: "completed", progress: 100, preview: file.name.substring(0, 200) + "..." }
+                : f
+            )
+          );
+        } catch (error) {
+          setFiles(prev =>
+            prev.map(f =>
+              f.id === file.id
+                ? { ...f, status: "error", error: error instanceof Error ? error.message : "Unknown error" }
+                : f
+            )
+          );
+        }
+      }
+    };
+
     // Handle file upload
     const handleFileUpload = async (
       file: File | null,
       metadataParam?: string,
       rulesParam?: string,
-      useColpaliParam?: boolean
+      useColpaliParam?: boolean,
+      departments?: string[] // to automatically put in given department or create new
     ) => {
       if (!file) {
         showAlert("Please select a file to upload", {
@@ -781,10 +841,20 @@ const DocumentsSection = React.forwardRef<
       addOptimisticDocument(optimisticDoc);
 
       // Use passed parameters or fall back to hook values
+
+      const cleanedMeta = (meta: string | undefined) => {
+        return meta == "{}" ? undefined : meta;
+      };
+
+      let extractedMeta;
+      const metaResponse = await processFile(file, departments);
+      const validMetaResponse = !(metaResponse instanceof Error);
+      if (validMetaResponse) extractedMeta = metaResponse;
+
       const fileToUploadRef = file;
-      const metadataRef = metadataParam ?? metadata;
+      const metadataRef = cleanedMeta(metadataParam) ?? JSON.stringify(extractedMeta) ?? metadata;
       const rulesRef = rulesParam ?? rules;
-      const useColpaliRef = useColpaliParam ?? useColpali;
+      const useColpaliRef = validMetaResponse ? metaResponse.usePali : (useColpaliParam ?? useColpali);
 
       // Reset form
       resetUploadDialog();
@@ -814,6 +884,9 @@ const DocumentsSection = React.forwardRef<
             formData.set("metadata", metadataRef);
             formData.append("folder_name", selectedFolder);
           }
+        }
+        if (departments && validMetaResponse) {
+          formData.append("folder_name", metaResponse.departmentName);
         }
 
         const url = `${effectiveApiUrl}/ingest/file`;
@@ -1632,6 +1705,12 @@ const DocumentsSection = React.forwardRef<
               </div>
             )}
           </div>
+        )}
+        {selectedFolder == null && (
+          <>
+            <FileUploadZone onFilesAdded={handleFilesAdded} isUploading={isUploading} />
+            <FileList files={files} />
+          </>
         )}
 
         {/* Dialog for creating new folder */}

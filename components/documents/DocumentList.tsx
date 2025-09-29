@@ -97,7 +97,7 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
       if (doc.metadata) {
         Object.keys(doc.metadata).forEach(key => {
           // Filter out external_id since we have a dedicated Document ID column
-          if (key !== "external_id") {
+          if (!["external_id", "usePali", "notifiy", ""].includes(key)) {
             fields.add(key);
           }
         });
