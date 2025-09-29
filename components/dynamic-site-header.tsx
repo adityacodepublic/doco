@@ -68,7 +68,7 @@ export function DynamicSiteHeader({
         </nav>
 
         {/* Right side content */}
-        <div className="ml-auto flex items-center gap-2">
+        <div className="no-scrollbar ml-auto flex items-center gap-2 overflow-x-scroll">
           {rightContent}
           <ThemeToggle />
         </div>

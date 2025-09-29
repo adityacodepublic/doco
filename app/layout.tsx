@@ -34,9 +34,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <div className="min-h-screen bg-sidebar">
+          <div className="min-h-screen w-full max-w-full bg-sidebar">
             <MorphikProvider>
               <HeaderProvider>
                 <ChatProvider>
@@ -52,7 +52,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <SidebarContainer />
                     <SidebarInset>
                       <DynamicSiteHeader />
-                      <div className="flex flex-1 flex-col p-4 md:p-6">{children}</div>
+                      <div className="flex w-full max-w-full flex-1 flex-col overflow-x-hidden p-4 md:p-6">
+                        {children}
+                      </div>
                     </SidebarInset>
                   </SidebarProvider>
                 </ChatProvider>

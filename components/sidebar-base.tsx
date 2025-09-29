@@ -172,7 +172,7 @@ export function BaseSidebar({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="relative flex flex-col">
+      <SidebarContent className="relative flex flex-col [&_svg]:h-5 [&_svg]:w-5">
         {showChatView ? (
           <div className="min-h-0 flex-1">
             {/* Back to main menu */}
@@ -187,18 +187,18 @@ export function BaseSidebar({
                       onClick={() => onChatViewChange?.(false)}
                       title="Back"
                     >
-                      <IconArrowLeft className="h-4 w-4" />
+                      <IconArrowLeft />
                     </Button>
                   </div>
                 ) : (
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="w-full justify-start gap-2 text-sm"
+                    className="text-md w-full justify-start gap-2"
                     onClick={() => onChatViewChange?.(false)}
                   >
-                    <IconArrowLeft className="h-4 w-4" />
-                    Back to Menu
+                    <IconArrowLeft />
+                    <span className="text-md">Back to Menu</span>
                   </Button>
                 )}
               </SidebarGroupContent>
@@ -208,7 +208,7 @@ export function BaseSidebar({
               <SidebarGroup>
                 <SidebarGroupContent className="flex items-center justify-center px-2 py-1">
                   <Button variant="ghost" size="icon" title="New chat" onClick={() => onChatSelect?.(undefined)}>
-                    <IconPlus className="h-4 w-4" />
+                    <IconPlus />
                   </Button>
                 </SidebarGroupContent>
               </SidebarGroup>
@@ -232,18 +232,18 @@ export function BaseSidebar({
                 {state === "collapsed" ? (
                   <div className="flex w-full items-center justify-center">
                     <Button variant="ghost" size="icon" onClick={() => onSettingsViewChange?.(false)} title="Back">
-                      <IconArrowLeft className="h-4 w-4" />
+                      <IconArrowLeft />
                     </Button>
                   </div>
                 ) : (
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="w-full justify-start gap-2 text-sm"
+                    className="text-md w-full justify-start gap-2"
                     onClick={() => onSettingsViewChange?.(false)}
                   >
-                    <IconArrowLeft className="h-4 w-4" />
-                    Back to Menu
+                    <IconArrowLeft />
+                    <span className="text-md">Back to Menu</span>
                   </Button>
                 )}
               </SidebarGroupContent>
@@ -293,7 +293,7 @@ export function BaseSidebar({
                             isActive={pathname === "/chat"}
                           >
                             {item.icon && <item.icon />}
-                            <span>{item.title}</span>
+                            <span className="text-md">{item.title}</span>
                           </SidebarMenuButton>
                         ) : item.isSpecial && item.title === "Settings" ? (
                           <SidebarMenuButton
@@ -306,13 +306,13 @@ export function BaseSidebar({
                             isActive={pathname === "/settings"}
                           >
                             {item.icon && <item.icon />}
-                            <span>{item.title}</span>
+                            <span className="text-md">{item.title}</span>
                           </SidebarMenuButton>
                         ) : (
                           <SidebarMenuButton tooltip={item.title} asChild>
                             <Link href={item.url}>
                               {item.icon && <item.icon />}
-                              <span>{item.title}</span>
+                              <span className="text-md">{item.title}</span>
                             </Link>
                           </SidebarMenuButton>
                         )
@@ -327,7 +327,7 @@ export function BaseSidebar({
                           }
                         >
                           {item.icon && <item.icon />}
-                          <span>{item.title}</span>
+                          <span className="text-md">{item.title}</span>
                         </SidebarMenuButton>
                       )}
                     </SidebarMenuItem>
@@ -354,13 +354,13 @@ export function BaseSidebar({
                               isActive={pathname === "/settings"}
                             >
                               {item.icon && <item.icon />}
-                              <span>{item.title}</span>
+                              <span className="text-md">{item.title}</span>
                             </SidebarMenuButton>
                           ) : (
                             <SidebarMenuButton tooltip={item.title} asChild>
                               <Link href={item.url}>
                                 {item.icon && <item.icon />}
-                                <span>{item.title}</span>
+                                <span className="text-md">{item.title}</span>
                               </Link>
                             </SidebarMenuButton>
                           )
@@ -375,7 +375,7 @@ export function BaseSidebar({
                             }
                           >
                             {item.icon && <item.icon />}
-                            <span>{item.title}</span>
+                            <span className="text-md">{item.title}</span>
                           </SidebarMenuButton>
                         )}
                       </SidebarMenuItem>
@@ -385,7 +385,7 @@ export function BaseSidebar({
                         <SidebarMenuButton tooltip={item.title} asChild>
                           <a href={item.url} target="_blank" rel="noopener noreferrer">
                             {item.icon && <item.icon />}
-                            <span>{item.title}</span>
+                            <span className="text-md">{item.title}</span>
                           </a>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -396,19 +396,19 @@ export function BaseSidebar({
               {onUpgradeClick && (userProfile?.tier === "free" || !userProfile?.tier) && (
                 <div className="mx-2 mb-2 mt-2">
                   <Button
-                    className="w-full justify-between group-data-[collapsible=icon]:justify-center"
+                    className="text-md w-full justify-between group-data-[collapsible=icon]:justify-center"
                     variant="outline"
                     size="default"
                     onClick={onUpgradeClick}
                     title="Upgrade to PRO"
                   >
                     <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
-                      <span>Upgrade to</span>
-                      <Badge variant="secondary" className="text-xs">
+                      <span className="text-md">Upgrade to</span>
+                      <Badge variant="secondary" className="text-base">
                         PRO
                       </Badge>
                     </div>
-                    <IconArrowRight className="h-4 w-4" />
+                    <IconArrowRight />
                   </Button>
                 </div>
               )}
