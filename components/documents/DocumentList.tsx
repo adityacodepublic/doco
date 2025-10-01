@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import {
   FileText,
   ChevronRight,
   ChevronDown,
+  BotMessageSquare,
 } from "lucide-react";
 import { showAlert } from "@/components/ui/alert-system";
 
@@ -73,6 +75,7 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
   onSearchChange,
   allFoldersExpanded = false,
 }) {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   React.useEffect(() => {
@@ -394,26 +397,28 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
                 (sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
               {sortColumn !== "external_id" && <ArrowUpDown className="h-3 w-3 opacity-30" />}
             </div>
-            {allColumns.map(column => (
-              <div
-                key={column.name}
-                className="flex max-w-[160px] cursor-pointer items-center gap-1 px-3 py-2 text-sm font-semibold hover:bg-muted/50"
-                onClick={() => handleSort(column.name)}
-              >
-                <span className="truncate" title={column.name}>
-                  {column.name}
-                </span>
-                {sortColumn === column.name ? (
-                  sortDirection === "asc" ? (
-                    <ArrowUp className="h-3 w-3 flex-shrink-0" />
+            {allColumns
+              .filter(item => item.name !== "title")
+              .map(column => (
+                <div
+                  key={column.name}
+                  className="flex max-w-[160px] cursor-pointer items-center gap-1 px-3 py-2 text-sm font-semibold hover:bg-muted/50"
+                  onClick={() => handleSort(column.name)}
+                >
+                  <span className="truncate" title={column.name}>
+                    {column.name}
+                  </span>
+                  {sortColumn === column.name ? (
+                    sortDirection === "asc" ? (
+                      <ArrowUp className="h-3 w-3 flex-shrink-0" />
+                    ) : (
+                      <ArrowDown className="h-3 w-3 flex-shrink-0" />
+                    )
                   ) : (
-                    <ArrowDown className="h-3 w-3 flex-shrink-0" />
-                  )
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 flex-shrink-0 opacity-30" />
-                )}
-              </div>
-            ))}
+                    <ArrowUpDown className="h-3 w-3 flex-shrink-0 opacity-30" />
+                  )}
+                </div>
+              ))}
           </div>
           {/* Sticky Actions column */}
           <div className="sticky right-0 top-0 z-30 w-[120px] border-l bg-muted px-3 py-2 text-center text-sm font-semibold">
@@ -597,7 +602,7 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
                   )}
                 </div>
 
-                <span className="truncate font-medium">{doc.filename || "N/A"}</span>
+                <span className="truncate font-medium">{(doc.metadata.title as string) || doc.filename || "N/A"}</span>
                 {/* Progress bar for processing documents */}
                 {doc.system_metadata?.status === "processing" &&
                   (doc.system_metadata?.progress as ProcessingProgress | undefined) && (
@@ -618,9 +623,9 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
                     copyDocumentId(doc.external_id);
                   }}
                   className="group flex items-center gap-2 font-mono text-xs text-muted-foreground transition-colors hover:text-foreground"
-                  title="Click to copy Document ID"
+                  title="Click to copy Document Name"
                 >
-                  <span className="max-w-[120px] truncate">{doc.external_id}</span>
+                  <span className="max-w-[120px] truncate">{doc.filename}</span>
                   {copiedDocumentId === doc.external_id ? (
                     <Check className="h-3 w-3 text-green-500" />
                   ) : (
@@ -645,7 +650,7 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
               {((doc as Document & { itemType?: string }).itemType === "document" ||
                 !(doc as Document & { itemType?: string }).itemType) && (
                 <>
-                  {doc.content_type === "application/pdf" && onViewInPDFViewer && (
+                  {/* {doc.content_type === "application/pdf" && onViewInPDFViewer && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -658,7 +663,19 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
-                  )}
+                  )} */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={e => {
+                      e.stopPropagation();
+                      router.push(`/chat?doc=${doc.external_id}`);
+                    }}
+                    className="h-8 w-8 p-0"
+                    title="Chat with Document"
+                  >
+                    <BotMessageSquare className="h-4 w-4" />
+                  </Button>
                   {onDownloadDocument && (
                     <Button
                       variant="ghost"

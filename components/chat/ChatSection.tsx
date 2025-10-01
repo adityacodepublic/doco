@@ -25,6 +25,7 @@ import { AgentPreviewMessage, AgentUIMessage, DisplayObject, SourceObject, ToolC
 import { useChatContext } from "@/components/chat/chat-context";
 import { useTheme } from "next-themes";
 import { showAlert } from "@/components/ui/alert-system";
+import { useSearchParams } from "next/navigation";
 
 interface ChatSectionProps {
   apiBaseUrl: string;
@@ -100,6 +101,8 @@ const ChatSection: React.FC<ChatSectionProps> = ({
   isReadonly = false,
   onChatSubmit,
 }) => {
+  const searchParams = useSearchParams();
+
   // Use global chat state
   const { activeChatId, setActiveChatId } = useChatContext();
 
@@ -167,7 +170,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({
           ...parsedFilters,
           external_id: selectedDocumentIds.length > 0 ? selectedDocumentIds : undefined,
         };
-
+        console.log("newFilters", newFilters);
         // Remove undefined values
         Object.keys(newFilters).forEach(key => newFilters[key] === undefined && delete newFilters[key]);
 
@@ -229,6 +232,12 @@ const ChatSection: React.FC<ChatSectionProps> = ({
 
   // State for agent loading
   const [agentHistoryLoading, setAgentHistoryLoading] = useState(false);
+
+  // Read searchParams to see if selected document provided
+  useEffect(() => {
+    const doc = searchParams.get("doc");
+    updateDocumentFilter(doc ? [doc] : []);
+  }, []);
 
   // Load agent messages from chat history when switching to agent mode
   useEffect(() => {
@@ -998,7 +1007,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({
                       }
                     }}
                     disabled={isReadonly || (isAgentMode ? agentStatus === "submitted" : status === "loading")}
-                    className="min-h-[120px] resize-none border-0 bg-transparent px-4 pb-16 pt-4 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="min-h-[120px] resize-none border-0 bg-transparent px-4 pb-24 pt-4 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
                     style={{ height: "auto" }}
                   />
 
@@ -1007,7 +1016,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({
                     <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between border-t border-border/50 p-3">
                       {/* Left side - Document and Folder Selection (only in chat mode) */}
                       {!isAgentMode && (
-                        <div className="mr-4 flex flex-1 items-center gap-2">
+                        <div className="mr-4 flex flex-1 flex-wrap items-center gap-2">
                           <div className="flex-1">
                             <DocumentSelector
                               documents={documents}
