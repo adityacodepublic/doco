@@ -48,7 +48,7 @@ export const processFile = async (file: File, departments?: string[]): Promise<P
       "departmentName": "name of department from ${departments ? JSON.stringify(departments) : "[]"} if it belongs to them else suggest a new department name.",
       "title": "short title desribing the document", 
       "keyPointsSummary": ["what has happened", "any reason for happening", "any extra details"],
-      "usePali":"boolean, if document contain complex unparsable images, or different language other than english then yes, if normal plain text then no",
+      "usePali":"boolean, if document contain complex unparsable images, or different language other than english then yes, if normal plain text document then no",
       "notifiy": [{
         "questionId":"id of questions only if notifyQuestion object given in the prompt"
         "isAnswerable":"boolean output only- if data is related to question or not"

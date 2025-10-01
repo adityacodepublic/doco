@@ -11,6 +11,7 @@ import {
   IconBook,
   IconMessageCircle,
 } from "@tabler/icons-react";
+import { BellDot } from "lucide-react";
 
 export interface BaseNavItem {
   title: string;
@@ -56,6 +57,7 @@ export const baseMainNavItems: Omit<BaseNavItem, "type">[] = [
     icon: IconMessage,
     isSpecial: true,
   },
+  { title: "Notifications", icon: BellDot },
   {
     title: "Knowledge Graphs",
     icon: IconShare,
@@ -110,10 +112,12 @@ export const createUrlNavigation = (onChatClick: () => void, onSettingsClick?: (
             : index === 3
               ? "/chat"
               : index === 4
-                ? "/graphs"
+                ? "/notifications"
                 : index === 5
-                  ? "/workflows"
-                  : "/connections",
+                  ? "/graphs"
+                  : index === 6
+                    ? "/workflows"
+                    : "/connections",
   })),
   secondaryItems: baseSecondaryNavItems.map((item, index) => ({
     ...item,
@@ -162,10 +166,12 @@ export const createSectionNavigation = (
             : index === 3
               ? "chat"
               : index === 4
-                ? "graphs"
+                ? "notifications"
                 : index === 5
-                  ? "workflows"
-                  : "connections",
+                  ? "graphs"
+                  : index === 6
+                    ? "workflows"
+                    : "connections",
   })),
   secondaryItems: baseSecondaryNavItems.map((item, index) => ({
     ...item,

@@ -57,7 +57,7 @@ function DocumentsContent() {
     const rightContent = currentFolder ? (
       // Folder view controls
       <>
-        {currentFolder !== "all" && (
+        {/* {currentFolder !== "all" && (
           <Button
             variant="outline"
             size="sm"
@@ -76,7 +76,7 @@ function DocumentsContent() {
               </Badge>
             )}
           </Button>
-        )}
+        )} */}
 
         {selectedDocuments.length > 0 && (
           <Button
