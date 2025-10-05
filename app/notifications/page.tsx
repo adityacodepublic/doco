@@ -5,6 +5,8 @@ import { getAllDepartments, getAllQuestions } from "@/lib/services/notifications
 import { tryCatch } from "@/lib/tryCatch";
 import z from "zod";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const notificationSchema = z.object({
     title: z.string().min(1),
