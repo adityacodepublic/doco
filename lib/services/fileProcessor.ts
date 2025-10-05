@@ -22,7 +22,7 @@ const documentSchema = z.object({
 
 export type ProcessedData = z.infer<typeof documentSchema>;
 
-const key = "AIzaSyCZ4WIMyhDULsXkrlgiJxAuUuFnx9gzLO8";
+const key = z.string().min(1).parse(process.env.NEXT_PUBLIC_GOOGLE_API_KEY);
 
 const ai = new GoogleGenAI({ apiKey: key });
 
