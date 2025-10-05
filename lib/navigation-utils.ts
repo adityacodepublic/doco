@@ -70,6 +70,10 @@ export const baseMainNavItems: Omit<BaseNavItem, "type">[] = [
     title: "Connectors",
     icon: IconPlugConnected,
   },
+  {
+    title: "Learnings",
+    icon: IconBook,
+  },
 ];
 
 export const baseSecondaryNavItems: Omit<BaseNavItem, "type">[] = [
@@ -117,7 +121,11 @@ export const createUrlNavigation = (onChatClick: () => void, onSettingsClick?: (
                   ? "/graphs"
                   : index === 6
                     ? "/workflows"
-                    : "/connections",
+                  : index === 7
+                    ? "/connections"
+                    : index === 8
+                      ? "/learnings"
+                      : "/",
   })),
   secondaryItems: baseSecondaryNavItems.map((item, index) => ({
     ...item,
