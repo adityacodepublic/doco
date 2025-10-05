@@ -97,6 +97,7 @@ export function DocumentSelector({
   // Handle folder selection
   const handleFolderToggle = useCallback(
     (folderName: string) => {
+      console.log("folderName", folderName);
       const newSelectedFolders = selectedFolders.includes(folderName)
         ? selectedFolders.filter(name => name !== folderName)
         : [...selectedFolders, folderName];

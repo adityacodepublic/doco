@@ -452,7 +452,6 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
           {DocumentListHeader()}
           <LoadingDocuments />
           {/* Spacer to ensure container fills available height */}
-          <div className="min-h-16 flex-1"></div>
         </div>
       </div>
     );
@@ -602,7 +601,9 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
                   )}
                 </div>
 
-                <span className="truncate font-medium">{(doc.metadata.title as string) || doc.filename || "N/A"}</span>
+                <span className="truncate font-medium">
+                  {(doc.metadata.title as string) || doc.filename?.split("/")[0] || "N/A"}
+                </span>
                 {/* Progress bar for processing documents */}
                 {doc.system_metadata?.status === "processing" &&
                   (doc.system_metadata?.progress as ProcessingProgress | undefined) && (
@@ -642,7 +643,7 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
             </div>
             {/* Sticky Actions column */}
             <div
-              className={`sticky right-0 z-20 flex w-[120px] items-center justify-end gap-1 border-l border-border px-3 py-2 ${
+              className={`sticky right-0 z-20 flex w-[120px] items-center justify-start gap-1 border-l border-border px-3 py-2 ${
                 doc.external_id === selectedDocument?.external_id ? "bg-accent" : "bg-background"
               } ${(doc as Document & { isChildDocument?: boolean }).isChildDocument ? "bg-gray-50 dark:bg-gray-900" : ""}`}
             >
@@ -706,6 +707,25 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
                   )}
                 </>
               )}
+              {!(
+                (doc as Document & { itemType?: string }).itemType === "document" ||
+                !(doc as Document & { itemType?: string }).itemType
+              ) && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={e => {
+                      e.stopPropagation();
+                      router.push(`/chat?doc=${doc.filename}`);
+                    }}
+                    className="h-8 w-8 p-0"
+                    title="Chat with Document"
+                  >
+                    <BotMessageSquare className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         ))}
@@ -727,7 +747,6 @@ const DocumentList: React.FC<DocumentListProps> = React.memo(function DocumentLi
         {documents.length === 0 && <EmptyDocuments />}
 
         {/* Spacer to ensure container fills available height */}
-        <div className="min-h-16 flex-1"></div>
       </div>
     </div>
   );

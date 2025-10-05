@@ -170,7 +170,7 @@ export function NotificationsModal({ trigger, onSuccess, initialValues }: Notifi
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Notification Trigger Questions</DialogTitle>
+          <DialogTitle className="text-3xl font-semibold">Add Notification Trigger Questions</DialogTitle>
           <DialogDescription>
             Add questions, for which you want to receive notifications <br />
             eg- Notify when engineering team has flagged an upcoming change. <br />
@@ -200,7 +200,7 @@ export function NotificationsModal({ trigger, onSuccess, initialValues }: Notifi
 
                   {/* Department Name */}
                   <div className="space-y-2">
-                    <Label className="text-lg font-bold" htmlFor={`departments.${departmentIndex}.dept`}>
+                    <Label className="text-lg font-semibold" htmlFor={`departments.${departmentIndex}.dept`}>
                       {department.dept}
                     </Label>
                     {/* <Input
@@ -218,7 +218,7 @@ export function NotificationsModal({ trigger, onSuccess, initialValues }: Notifi
                   {/* Questions */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label className="text-base font-medium">Questions</Label>
+                      <Label className="text-base">Questions</Label>
                       <Button type="button" variant="outline" size="sm" onClick={() => addQuestion(departmentIndex)}>
                         <Plus className="mr-1 h-4 w-4" />
                         Add Question

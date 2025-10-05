@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useMorphikChat } from "@/hooks/useMorphikChat";
 import { generateUUID } from "@/lib/utils";
 import type { QueryOptions } from "@/components/types";
@@ -102,7 +102,6 @@ const ChatSection: React.FC<ChatSectionProps> = ({
   onChatSubmit,
 }) => {
   const searchParams = useSearchParams();
-
   // Use global chat state
   const { activeChatId, setActiveChatId } = useChatContext();
 
@@ -232,12 +231,6 @@ const ChatSection: React.FC<ChatSectionProps> = ({
 
   // State for agent loading
   const [agentHistoryLoading, setAgentHistoryLoading] = useState(false);
-
-  // Read searchParams to see if selected document provided
-  useEffect(() => {
-    const doc = searchParams.get("doc");
-    updateDocumentFilter(doc ? [doc] : []);
-  }, []);
 
   // Load agent messages from chat history when switching to agent mode
   useEffect(() => {
@@ -573,6 +566,62 @@ const ChatSection: React.FC<ChatSectionProps> = ({
     return documents.filter(d => d !== "__none__");
   };
 
+  function handleFolderToggle(folderName: string) {
+    const selectedFolders = getCurrentSelectedFolders();
+    const selectedDocuments = getCurrentSelectedDocuments();
+    // Group documents by folder
+    // Group documents by folder (no memoization)
+    const groupedDocuments: Record<
+      string,
+      {
+        id: string;
+        filename: string;
+        folder_name?: string;
+        content_type?: string;
+        metadata?: Record<string, unknown>;
+        system_metadata?: unknown;
+      }[]
+    > = {};
+
+    documents.forEach(doc => {
+      const folderName = doc.folder_name || "Unorganized";
+      if (!groupedDocuments[folderName]) {
+        groupedDocuments[folderName] = [];
+      }
+      groupedDocuments[folderName].push(doc);
+    });
+
+    const onDocumentSelectionChange = (selectedDocumentIds: string[]) => {
+      updateDocumentFilter(selectedDocumentIds);
+    };
+
+    const onFolderSelectionChange = (newSelectedFolders: string[]) => {
+      safeUpdateOption("folder_name", newSelectedFolders.length > 0 ? newSelectedFolders : undefined);
+    };
+
+    const newSelectedFolders = selectedFolders.includes(folderName)
+      ? selectedFolders.filter(name => name !== folderName)
+      : [...selectedFolders, folderName];
+
+    onFolderSelectionChange(newSelectedFolders);
+
+    // When a folder is selected, also select/deselect all its documents
+    const folderDocuments = groupedDocuments[folderName] || [];
+    const folderDocumentIds = folderDocuments.map(doc => doc.id);
+
+    if (selectedFolders.includes(folderName)) {
+      // Deselecting folder - remove all its documents from selection
+      const newSelectedDocuments = selectedDocuments.filter(id => !folderDocumentIds.includes(id));
+      onDocumentSelectionChange(newSelectedDocuments);
+    } else {
+      // Selecting folder - add all its documents to selection
+      const newSelectedDocuments = [
+        ...selectedDocuments.filter(id => !folderDocumentIds.includes(id)),
+        ...folderDocumentIds,
+      ];
+      onDocumentSelectionChange(newSelectedDocuments);
+    }
+  }
   // Handle model selection change
   const handleModelChange = (modelId: string) => {
     setSelectedModel(modelId);
@@ -869,6 +918,20 @@ const ChatSection: React.FC<ChatSectionProps> = ({
       return <span className="text-base">●</span>;
     }
   };
+
+  // Read searchParams to see if selected document provided
+
+  useEffect(() => {
+    // Only run after component is fully mounted and all data is loaded
+    if (!loadingDocuments && !loadingFolders && documents.length > 0 && folders.length > 0) {
+      const doc = searchParams.getAll("doc");
+      if (doc.length > 0) {
+        updateDocumentFilter(doc);
+        doc.forEach(d => (handleFolderToggle(d), console.log("hi there", doc)));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadingDocuments, loadingFolders, documents.length, folders.length]);
 
   return (
     <div className="relative -m-4 flex h-[calc(100vh-3rem)] w-[calc(100%+2rem)] bg-background md:-m-6 md:h-[calc(100vh-3rem)] md:w-[calc(100%+3rem)]">

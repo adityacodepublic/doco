@@ -2,7 +2,20 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
 // import { useDebounce } from "@/lib/hooks/useDebounce"; // Commented for future use
-import { Upload, Search } from "lucide-react";
+import {
+  Upload,
+  Search,
+  BookOpen,
+  Filter,
+  Plus,
+  Users,
+  MessageSquare,
+  Lightbulb,
+  Share2,
+  Brain,
+  ChevronRight,
+  MessageCircle,
+} from "lucide-react";
 import { showAlert, removeAlert } from "@/components/ui/alert-system";
 import DocumentList from "./DocumentList";
 import DocumentDetail from "./DocumentDetail";
@@ -28,11 +41,12 @@ import { useDocuments, clearDocumentsCache } from "@/hooks/useDocuments";
 import { useUnorganizedDocuments, clearUnorganizedDocumentsCache } from "@/hooks/useUnorganizedDocuments";
 
 import { Document, FolderSummary } from "@/components/types";
-import FileUploadZone from "./FileUploadZone";
 import { FileList, FileMetadata } from "./FileList";
 import { processFile } from "@/lib/services/fileProcessor";
-import { CardContent } from "../notifications/card-mapping";
+import { CardContent as CardContentType } from "../notifications/card-mapping";
 import { addNotificationToDepartment, addQuestionToDepartment } from "@/lib/services/notifications";
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
+import { useRouter } from "next/navigation";
 
 // Custom hook for drag and drop functionality
 function useDragAndDrop({ onDrop, disabled = false }: { onDrop: (files: File[]) => void; disabled?: boolean }) {
@@ -120,7 +134,7 @@ interface DocumentsSectionProps {
 // Helper to generate temporary IDs for optimistic updates
 const generateTempId = () => `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-const DocumentsSection = React.forwardRef<
+const LearningsSection = React.forwardRef<
   {
     handleRefresh: () => void;
     handleDeleteMultipleDocuments: () => void;
@@ -159,6 +173,8 @@ const DocumentsSection = React.forwardRef<
     // Gemini extract data
     const [files, setFiles] = useState<FileMetadata[]>([]);
     const [isUploading] = useState(false);
+
+    const router = useRouter();
 
     // State for selected folder and documents
     const [selectedFolder, setSelectedFolder] = useState<string | null>(initialFolder);
@@ -258,18 +274,22 @@ const DocumentsSection = React.forwardRef<
       });
     }, [combinedRootItems, searchQuery]);
 
-    const filteredDocumentItems = useMemo(() => {
+    const filteredLearningsItems = useMemo(() => {
       return filteredRootItems
         .map(item => {
-          if (!!item.filename && !item.filename?.includes("/Learnings")) {
+          if (!!item.filename && item.filename?.includes("/Learnings")) {
             return { ...item };
           }
         })
         .filter(item => !!item);
     }, [filteredRootItems, folderSearchQuery]);
 
+    const learningChatString = useMemo(() => {
+      return filteredLearningsItems.map(item => `doc=${item.filename}`).join("&");
+    }, [filteredLearningsItems]);
+
     const folderNames = useMemo(() => {
-      return filteredRootItems
+      return filteredLearningsItems
         .filter(
           (item): item is typeof item & { filename: string } =>
             item.content_type === "folder" && typeof item.filename === "string"
@@ -277,7 +297,7 @@ const DocumentsSection = React.forwardRef<
         .map(item => item.filename.split("/")[0]);
     }, []);
 
-    console.log("filteredRootItems", filteredRootItems);
+    console.log("filteredRootItems", filteredLearningsItems);
     // State for delete confirmation modal
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<string | null>(null); // For single delete: stores ID
@@ -295,6 +315,9 @@ const DocumentsSection = React.forwardRef<
     const [newFolderName, setNewFolderName] = useState("");
     const [newFolderDescription, setNewFolderDescription] = useState("");
     const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+
+    // State for learnings info modal
+    const [showLearningsInfoModal, setShowLearningsInfoModal] = useState(false);
 
     // Upload dialog state from custom hook
     const uploadDialogState = useUploadDialog();
@@ -864,7 +887,7 @@ const DocumentsSection = React.forwardRef<
       const validMetaResponse = !(metaResponse instanceof Error);
       if (validMetaResponse) extractedMeta = metaResponse;
       if (validMetaResponse && metaResponse.notifiy) {
-        const notifications: CardContent[] = metaResponse.notifiy.map(n => {
+        const notifications: CardContentType[] = metaResponse.notifiy.map(n => {
           return {
             title: n,
             href: `/documents?folder=${encodeURIComponent(metaResponse.departmentName)}`,
@@ -910,7 +933,7 @@ const DocumentsSection = React.forwardRef<
           }
         }
         if (departments && validMetaResponse) {
-          formData.append("folder_name", metaResponse.departmentName);
+          formData.append("folder_name", `${metaResponse.departmentName}/Learnings`);
         }
 
         const url = `${effectiveApiUrl}/ingest/file`;
@@ -1482,46 +1505,148 @@ const DocumentsSection = React.forwardRef<
         {/* No longer needed - controls will be provided in FolderList */}
 
         {/* Render the FolderList with header at all times when selectedFolder is not null */}
-        {selectedFolder !== null && (
-          <>
-            <FolderList
-              folders={folders}
-              selectedFolder={selectedFolder}
-              setSelectedFolder={handleFolderSelect}
-              apiBaseUrl={effectiveApiUrl}
-              authToken={authToken}
-              refreshFolders={refreshFolders}
-              loading={foldersLoading}
-              refreshAction={handleRefresh}
-              selectedDocuments={selectedDocuments}
-              handleDeleteMultipleDocuments={handleDeleteMultipleDocuments}
-              uploadDialogComponent={
-                <UploadDialog
-                  showUploadDialog={showUploadDialog}
-                  setShowUploadDialog={setShowUploadDialog}
-                  loading={loading}
-                  onFileUpload={handleFileUpload}
-                  onBatchFileUpload={handleBatchFileUpload}
-                  onTextUpload={handleTextUpload}
-                />
-              }
-              onFolderCreate={onFolderCreate}
-            />
+        <div className="container mx-auto max-w-4xl p-6">
+          <div className="flex flex-col space-y-8">
+            {/* Header */}
+            <div className="space-y-4">
+              <h1 className="bg-gradient-to-r from-gray-600 to-stone-600 bg-clip-text text-4xl font-semibold text-transparent">
+                Tackling Knowledge Attrition
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Preserving Institutional Memory for Organizational Resilience
+              </p>
+            </div>
 
-            {/* Separate Search Bar for Folder View */}
-            <div className="mb-4 bg-background">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search documents..."
-                  value={folderSearchQuery}
-                  onChange={e => setFolderSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
+            {/* Search and Actions */}
+            <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+              {selectedFolder !== null && (
+                <div className="relative max-w-md flex-1">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search learnings..."
+                    className="pl-10"
+                    value={folderSearchQuery}
+                    onChange={e => setFolderSearchQuery(e.target.value)}
+                  />
+                </div>
+              )}
+              {/* Separate Search Bar for Root Level - Outside the flex container to match folder view */}
+              {((selectedFolder === null && folders.length !== 0) || unorganizedDocuments.length !== 0) && (
+                <div className="relative max-w-md flex-1">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search learnings..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              )}
+              <div className="flex space-x-2">
+                <Button variant="outline">
+                  <Filter className="mr-2 h-4 w-4" />
+                  Filter
+                </Button>
+                <Button
+                  onClick={() => {
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    input.multiple = true;
+                    input.onchange = e => {
+                      const files = Array.from((e.target as HTMLInputElement).files || []);
+                      if (files.length > 0) {
+                        handleFilesAdded(files);
+                      }
+                    };
+                    input.click();
+                  }}
+                  disabled={isUploading}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Learning
+                </Button>
               </div>
             </div>
-          </>
-        )}
+
+            {/* Content */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {/* Example Learning Card */}
+              <Card
+                className="cursor-pointer transition-shadow hover:shadow-md"
+                onClick={() => setShowLearningsInfoModal(true)}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="rounded-lg bg-primary/10 p-2">
+                      <BookOpen className="h-5 w-5 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg">Getting Started</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Learn the basics of using this platform to organize your knowledge and insights.
+                  </p>
+                  <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center text-blue-500">
+                      Click to learn more <ChevronRight className="pl-2" />
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Empty State */}
+              <Card className="flex min-h-[200px] items-center justify-center border-2 border-dashed border-muted-foreground/20 bg-muted/20 transition-colors hover:border-primary/50">
+                <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+                  <BookOpen className="mb-2 h-8 w-8 text-muted-foreground" />
+                  <h3 className="text-lg font-medium">No learnings yet</h3>
+                  <p className="mb-4 text-sm text-muted-foreground">Start by adding your first learnings</p>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const input = document.createElement("input");
+                      input.type = "file";
+                      input.multiple = true;
+                      input.onchange = e => {
+                        const files = Array.from((e.target as HTMLInputElement).files || []);
+                        if (files.length > 0) {
+                          handleFilesAdded(files);
+                        }
+                      };
+                      input.click();
+                    }}
+                    disabled={isUploading}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Learning
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card
+                className="cursor-pointer transition-shadow hover:shadow-md"
+                onClick={() => router.push(`/chat?${learningChatString}`)}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="rounded-lg bg-primary/10 p-2">
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg">Ask Questions</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Learn from your department insights and learnings</p>
+                  <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center text-blue-500">
+                      Chat <ChevronRight className="pl-3" />
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
 
         {/* Delete Confirmation Modal */}
         <DeleteConfirmationModal
@@ -1542,21 +1667,6 @@ const DocumentsSection = React.forwardRef<
         {/* Root Level List View (selectedFolder is null) */}
         {selectedFolder === null ? (
           <>
-            {/* Separate Search Bar for Root Level - Outside the flex container to match folder view */}
-            {folders.length !== 0 || unorganizedDocuments.length !== 0 ? (
-              <div className="mb-4 bg-background">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search documents..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-            ) : null}
-
             <div className="flex min-h-0 flex-1 flex-col gap-4 md:flex-row md:items-start">
               {/* Left Panel: Combined Folders and Documents List */}
               <div
@@ -1594,7 +1704,7 @@ const DocumentsSection = React.forwardRef<
                     )}
 
                     <DocumentList
-                      documents={filteredDocumentItems}
+                      documents={filteredLearningsItems}
                       selectedDocument={selectedDocument}
                       selectedDocuments={selectedDocuments}
                       handleDocumentClick={handleRootItemClick}
@@ -1732,10 +1842,37 @@ const DocumentsSection = React.forwardRef<
         )}
         {selectedFolder == null && (
           <>
-            <FileUploadZone onFilesAdded={handleFilesAdded} isUploading={isUploading} />
+            {/* <FileUploadZone onFilesAdded={handleFilesAdded} isUploading={isUploading} /> */}
             <FileList files={files} />
           </>
         )}
+
+        <div className="container mt-10 flex flex-col space-y-4">
+          {/* Introduction */}
+          <Card className="border-l-4 border-blue-500">
+            <CardContent className="pt-6">
+              <p className="text-lg leading-relaxed">
+                Knowledge attrition is a silent but costly challenge for many organizations. Over time, invaluable
+                insights, experiences, and operational know-how become locked in static documents, spreadsheets, or,
+                worse, in the minds of individual employees. When key personnel retire, transfer, or leave, this
+                institutional memory often disappears, taking years of expertise and lessons learned with it.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Conclusion */}
+          <div className="rounded-xl border border-blue-100 bg-blue-50 p-6">
+            <p className="text-center text-lg text-blue-800">
+              By institutionalizing knowledge capture and making information easily accessible, organizations can
+              safeguard their intellectual capital, enhance efficiency, and ensure continuity even as personnel changes
+              occur.
+            </p>
+            <p className="mt-4 text-center font-medium text-blue-900">
+              In short, preserving knowledge isn&apos;t just about saving information—it&apos;s about maintaining the
+              organization&apos;s long-term resilience and growth.
+            </p>
+          </div>
+        </div>
 
         {/* Dialog for creating new folder */}
         <Dialog open={showNewFolderDialog} onOpenChange={setShowNewFolderDialog}>
@@ -1776,6 +1913,123 @@ const DocumentsSection = React.forwardRef<
           </DialogContent>
         </Dialog>
 
+        {/* Learnings Info Modal */}
+        <Dialog open={showLearningsInfoModal} onOpenChange={setShowLearningsInfoModal}>
+          <DialogContent className="max-h-[85vh] max-w-5xl overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-2xl">
+                <Brain className="h-6 w-6 text-primary" />
+                Welcome to Learnings
+              </DialogTitle>
+              <DialogDescription>Your personal knowledge repository for organizational wisdom</DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              {/* Two Column Grid */}
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* What are Learnings */}
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900">
+                    <Lightbulb className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="mb-1 text-base font-semibold">What are Learnings?</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Insights, experiences, and knowledge gained from your work that capture valuable information
+                      otherwise lost when projects end or team members move on.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Why Add Learnings */}
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900">
+                    <Share2 className="h-5 w-5 text-green-600 dark:text-green-300" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="mb-1 text-base font-semibold">Why Add Your Learnings?</h3>
+                    <ul className="space-y-1.5 text-sm text-muted-foreground">
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5 text-primary">•</span>
+                        <span>
+                          <strong>Help Others:</strong> Share experiences with colleagues
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5 text-primary">•</span>
+                        <span>
+                          <strong>Help Yourself:</strong> Document for future reference
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5 text-primary">•</span>
+                        <span>
+                          <strong>Preserve Knowledge:</strong> Prevent knowledge loss
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* How It Works */}
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-purple-100 p-2 dark:bg-purple-900">
+                    <Users className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="mb-1 text-base font-semibold">How Can People Access This?</h3>
+                    <ul className="space-y-1.5 text-sm text-muted-foreground">
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5 text-primary">•</span>
+                        <span>
+                          <strong>Search & Browse:</strong> Find relevant learnings
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5 text-primary">•</span>
+                        <span>
+                          <strong>AI Chat:</strong> Ask questions and get answers
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5 text-primary">•</span>
+                        <span>
+                          <strong>Auto-organized:</strong> Categorized by department
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Get Started */}
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-orange-100 p-2 dark:bg-orange-900">
+                    <MessageSquare className="h-5 w-5 text-orange-600 dark:text-orange-300" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="mb-1 text-base font-semibold">Ready to Start?</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Click <strong>&quot;New Learning&quot;</strong> to upload documents or files containing valuable
+                      insights. The system will automatically organize them and make them accessible through search and
+                      chat.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to Action Box - Full Width */}
+              <div className="mt-6 rounded-lg border-2 border-primary/20 bg-primary/5 p-4">
+                <p className="text-center text-sm font-medium">
+                  💡 Every learning you share strengthens the organization&apos;s collective knowledge and helps build a
+                  more resilient team!
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setShowLearningsInfoModal(false)}>Got it!</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         {/* Upload Dialog - Always rendered at top level */}
         <UploadDialog
           showUploadDialog={showUploadDialog}
@@ -1790,6 +2044,6 @@ const DocumentsSection = React.forwardRef<
   }
 );
 
-DocumentsSection.displayName = "DocumentsSection";
+LearningsSection.displayName = "LearningsSection";
 
-export default DocumentsSection;
+export default LearningsSection;
