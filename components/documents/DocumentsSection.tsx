@@ -861,8 +861,9 @@ const DocumentsSection = React.forwardRef<
           };
         });
         // add await if needed
-        addNotificationToDepartment(metaResponse.departmentName, JSON.stringify(notifications));
+        notifications.map(n => addNotificationToDepartment(metaResponse.departmentName, JSON.stringify(n)));
       }
+      console.log("metaResponse", metaResponse);
 
       const fileToUploadRef = file;
       const metadataRef = cleanedMeta(metadataParam) ?? JSON.stringify(extractedMeta) ?? metadata;

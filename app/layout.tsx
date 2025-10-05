@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </HeaderProvider>
             </MorphikProvider>
           </div>
-          <AlertSystem position="bottom-right" />
+          <AlertSystem position="top-center" />
         </ThemeProvider>
       </body>
     </html>
