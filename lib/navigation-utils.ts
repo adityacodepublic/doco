@@ -121,11 +121,11 @@ export const createUrlNavigation = (onChatClick: () => void, onSettingsClick?: (
                   ? "/graphs"
                   : index === 6
                     ? "/workflows"
-                  : index === 7
-                    ? "/connections"
-                    : index === 8
-                      ? "/learnings"
-                      : "/",
+                    : index === 7
+                      ? "/connections"
+                      : index === 8
+                        ? "/learnings"
+                        : "/",
   })),
   secondaryItems: baseSecondaryNavItems.map((item, index) => ({
     ...item,
@@ -178,8 +178,12 @@ export const createSectionNavigation = (
                 : index === 5
                   ? "graphs"
                   : index === 6
-                    ? "workflows"
-                    : "connections",
+                    ? "/workflows"
+                    : index === 7
+                      ? "/connections"
+                      : index === 8
+                        ? "/learnings"
+                        : "/",
   })),
   secondaryItems: baseSecondaryNavItems.map((item, index) => ({
     ...item,
