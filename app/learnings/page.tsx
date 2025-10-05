@@ -79,7 +79,7 @@ export default function LearningsPage() {
             <CardContent className="flex flex-col items-center justify-center p-6 text-center">
               <BookOpen className="mb-2 h-8 w-8 text-muted-foreground" />
               <h3 className="text-lg font-medium">No learnings yet</h3>
-              <p className="mb-4 text-sm text-muted-foreground">Start by adding your first learning</p>
+              <p className="mb-4 text-sm text-muted-foreground">Start by adding your first learnings</p>
               <Button size="sm">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Learning
