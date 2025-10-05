@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-interface CardContent {
+export interface CardContent {
   title: string;
   href: string;
 }

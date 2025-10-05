@@ -30,7 +30,9 @@ import { useUnorganizedDocuments, clearUnorganizedDocumentsCache } from "@/hooks
 import { Document, FolderSummary } from "@/components/types";
 import FileUploadZone from "./FileUploadZone";
 import { FileList, FileMetadata } from "./FileList";
-import { ProcessedData, processFile } from "@/lib/services/fileProcessor";
+import { processFile } from "@/lib/services/fileProcessor";
+import { CardContent } from "../notifications/card-mapping";
+import { addNotificationToDepartment, addQuestionToDepartment } from "@/lib/services/notifications";
 
 // Custom hook for drag and drop functionality
 function useDragAndDrop({ onDrop, disabled = false }: { onDrop: (files: File[]) => void; disabled?: boolean }) {
@@ -846,10 +848,21 @@ const DocumentsSection = React.forwardRef<
         return meta == "{}" ? undefined : meta;
       };
 
+      // valid meta from gemini
       let extractedMeta;
       const metaResponse = await processFile(file, departments);
       const validMetaResponse = !(metaResponse instanceof Error);
       if (validMetaResponse) extractedMeta = metaResponse;
+      if (validMetaResponse && metaResponse.notifiy) {
+        const notifications: CardContent[] = metaResponse.notifiy.map(n => {
+          return {
+            title: n,
+            href: `/documents?folder=${encodeURIComponent(metaResponse.departmentName)}`,
+          };
+        });
+        // add await if needed
+        addNotificationToDepartment(metaResponse.departmentName, JSON.stringify(notifications));
+      }
 
       const fileToUploadRef = file;
       const metadataRef = cleanedMeta(metadataParam) ?? JSON.stringify(extractedMeta) ?? metadata;

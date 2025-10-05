@@ -1,11 +1,6 @@
 import { GoogleGenAI, createUserContent, createPartFromUri, Type, GenerateContentConfig } from "@google/genai";
 import z from "zod";
-
-const notifiySchema = z.object({
-  questionId: z.string().describe("ID of the question, only if notifyQuestion object is given in the prompt"),
-  isAnswerable: z.boolean().describe("Boolean output: true if data is related to the question, false otherwise"),
-  answer: z.string().optional().describe("Markdown-formatted answer, only provided if isAnswerable is true"),
-});
+import { getAllDepartments } from "./notifications";
 
 const documentSchema = z.object({
   departmentName: z
@@ -21,7 +16,7 @@ const documentSchema = z.object({
       "Boolean indicating if the document contains complex, unparsable images (true) or normal plain text (false)"
     ),
   notifiy: z
-    .array(notifiySchema)
+    .array(z.string())
     .describe("Array of notifications with questionId, isAnswerable flag, and answer if applicable"),
 });
 
@@ -35,6 +30,8 @@ export const processFile = async (file: File, departments?: string[]): Promise<P
   if (file.size === 0) {
     return Error(`File "${file.name}" is empty (0 bytes). Please select a valid file.`);
   }
+  const dept = await getAllDepartments();
+  const questions = { departments: dept.map(d => ({ dept: d.name, questions: d.questions })) };
 
   try {
     const uploadedFile = await ai.files.upload({
@@ -45,15 +42,22 @@ export const processFile = async (file: File, departments?: string[]): Promise<P
     const prompt = `Extract and structure the key information from this document. 
     Provide a summary and key points in the following JSON format:
 
+    these are the departments and their questions: ${questions ? JSON.stringify(questions) : "[]"}.
+
     {
-      "departmentName": "name of department from ${departments ? JSON.stringify(departments) : "[]"} if it belongs to them else suggest a new department name.",
-      "title": "short title desribing the document", 
-      "keyPointsSummary": ["what has happened", "any reason for happening", "any extra details"],
-      "usePali":"boolean, if document contain complex unparsable images, or different language other than english then yes, if normal plain text document then no",
+      "departmentName": "Identify the most relevant department from ${departments ? JSON.stringify(departments) : "[]"} that the document belongs to. If none match, suggest a new appropriate department name.",
+      "title": "A short, concise title describing the main subject of the document.",
+      "keyPointsSummary": [
+        "What has happened or what the document is about",
+        "Any reasons or causes mentioned",
+        "Any extra relevant details or context"
+      ],
+      "usePali": "boolean — true if the document contains complex or unparsable images, or if it uses a language other than English; false if it’s a normal plain-text English document.",
       "notifiy": [
-        "answer":"if it isAnswerable (true) then answer in markdown formatted string"
+        "If the document contains questions related to the identified department and they can be answered, include your answers as an array of strings. Otherwise, return an empty array."
       ]
-    }`;
+    }   
+    `;
 
     const config: GenerateContentConfig = {
       responseMimeType: "application/json",
@@ -78,19 +82,7 @@ export const processFile = async (file: File, departments?: string[]): Promise<P
           notifiy: {
             type: Type.ARRAY,
             items: {
-              type: Type.OBJECT,
-              properties: {
-                questionId: {
-                  type: Type.STRING,
-                },
-                isAnswerable: {
-                  type: Type.BOOLEAN,
-                },
-                answer: {
-                  type: Type.STRING,
-                },
-              },
-              propertyOrdering: ["questionId", "isAnswerable", "answer"],
+              type: Type.STRING,
             },
           },
         },
