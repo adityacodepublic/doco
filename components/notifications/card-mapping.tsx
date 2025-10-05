@@ -8,7 +8,7 @@ interface CardContent {
   href: string;
 }
 
-interface Card {
+export interface Card {
   cardTitle: string;
   contents: CardContent[];
 }
@@ -128,7 +128,9 @@ export function CardMapping({ cards }: CardMappingProps) {
             </svg>
           </div>
           <h3 className="mb-2 text-xl font-semibold text-stone-700">No Notifications</h3>
-          <p className="text-stone-500">You're all caught up! There are no notifications to display at the moment.</p>
+          <p className="text-stone-500">
+            You&apos;re all caught up! There are no notifications to display at the moment.
+          </p>
         </div>
       )}
 
