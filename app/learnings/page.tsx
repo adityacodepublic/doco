@@ -156,8 +156,8 @@ export default function LearningsPage() {
             occur.
           </p>
           <p className="mt-4 text-center font-medium text-blue-900">
-            In short, preserving knowledge isn't just about saving information—it's about maintaining the organization's
-            long-term resilience and growth.
+            In short, preserving knowledge isn&apos;t just about saving information—it&apos;s about maintaining the
+            organization&apos;s long-term resilience and growth.
           </p>
         </div>
       </div>
