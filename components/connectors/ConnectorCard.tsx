@@ -61,8 +61,18 @@ export function ConnectorCard({
       const status = await getConnectorAuthStatus(apiBaseUrl, connectorType, authToken);
       setAuthStatus(status);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unknown error occurred while fetching status.");
-      setAuthStatus(null);
+      // Special handling for Gmail - show fallback connection even if backend fails
+      if (connectorType === "gmail") {
+        setAuthStatus({
+          is_authenticated: false,
+          auth_url: "https://gmail.com",
+          message: "Backend not configured. Click to open Gmail directly.",
+        });
+        setError(null); // Don't show error, show fallback instead
+      } else {
+        setError(err instanceof Error ? err.message : "An unknown error occurred while fetching status.");
+        setAuthStatus(null);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -76,6 +86,13 @@ export function ConnectorCard({
     setError(null);
     setIsSubmitting(true);
     try {
+      // Special handling for Gmail fallback - direct redirect to Gmail
+      if (connectorType === "gmail" && authStatus?.auth_url === "https://gmail.com") {
+        window.open("https://gmail.com", "_blank");
+        setIsSubmitting(false);
+        return;
+      }
+
       // Construct the redirect URI to point to the main page with the connections section active
       const connectionsSectionUrl = new URL(window.location.origin);
       connectionsSectionUrl.pathname = "/"; // Ensure we are at the root path

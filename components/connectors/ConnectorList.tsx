@@ -2,7 +2,7 @@
 
 import { ConnectorCard } from "./ConnectorCard";
 import { BookLock, BookOpen } from "lucide-react";
-import { GitHub } from "../chat/icons"; // Import our custom GitHub icon
+import { GitHub, Gmail } from "../chat/icons"; // Import our custom GitHub and Gmail icons
 // import { useHeader } from "@/contexts/header-context"; // Removed - MorphikUI handles breadcrumbs
 // import { useEffect } from "react"; // Removed - not needed
 
@@ -19,6 +19,12 @@ const availableConnectors = [
     displayName: "GitHub",
     icon: GitHub,
     description: "Access repositories and files from GitHub.",
+  },
+  {
+    connectorType: "gmail",
+    displayName: "Gmail",
+    icon: Gmail,
+    description: "Access and ingest emails from your Gmail account.",
   },
   {
     connectorType: "zotero",
