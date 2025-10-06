@@ -987,7 +987,7 @@ const ChatSection: React.FC<ChatSectionProps> = ({
                         <div className="flex items-center gap-1.5">
                           <span className="font-medium">Default</span>
                         </div>
-                        <div className="text-xs text-muted-foreground">Morphik&apos;s recommended model</div>
+                        <div className="text-xs text-muted-foreground">Our recommended model</div>
                       </div>
                     </div>
 

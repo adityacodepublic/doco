@@ -208,18 +208,18 @@ export function DocumentSelector({
             aria-expanded={open}
             className="h-auto w-full justify-between px-3 py-2"
           >
-            <div className="flex min-w-0 flex-1 items-center gap-2">
-              <span className="truncate text-left">{getDisplayText()}</span>
+            <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+              <span className="shrink-0 text-left">{getDisplayText()}</span>
               {isSomeSelected && (
-                <div className="ml-2 flex items-center gap-1">
+                <div className="no-scrollbar flex max-w-[120px] items-center gap-1 overflow-x-auto md:max-w-[25rem]">
                   {selectedFolders.map(folder => (
-                    <Badge key={folder} variant="secondary" className="text-xs">
-                      <Folder className="mr-1 h-3 w-3" />
-                      {folder}
+                    <Badge key={folder} variant="secondary" className="shrink-0 text-xs">
+                      <Folder className="mr-1 h-3 w-3 shrink-0" />
+                      <span className="whitespace-nowrap">{folder}</span>
                     </Badge>
                   ))}
                   {selectedDocuments.length > 0 && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="shrink-0 text-xs">
                       {selectedDocuments.length} docs
                     </Badge>
                   )}
@@ -235,7 +235,7 @@ export function DocumentSelector({
           side="top"
           sideOffset={8}
         >
-          <div className="flex h-[400px] flex-col">
+          <div className="flex h-[400px] flex-col flex-wrap">
             {/* Header with search and select all */}
             <div className="border-b p-3">
               <div className="mb-2 flex items-center gap-2">
@@ -270,7 +270,7 @@ export function DocumentSelector({
                         <div key={folder.name} className="space-y-1">
                           <div
                             className={cn(
-                              "flex cursor-pointer items-center gap-2 rounded-md p-2 hover:bg-muted/50",
+                              "flex cursor-pointer items-center gap-2 overflow-x-scroll rounded-md p-2 hover:bg-muted/50",
                               isSelected && "bg-muted"
                             )}
                             onClick={() => handleFolderToggle(folder.name)}
