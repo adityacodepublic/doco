@@ -105,19 +105,19 @@ export function BaseSidebar({
   const defaultLogoComponent = (
     <>
       <Image
-        src={logoDark || "/doco-logos/doco_white_on_transparent_no_text.png"}
+        src={logoDark || "/doco-logos/white.png"}
         alt="Doco Logo"
-        width={24}
-        height={24}
-        className="hidden h-6 w-6 object-contain dark:block"
+        width={160}
+        height={160}
+        className="hidden h-24 w-24 object-contain dark:block"
         priority
       />
       <Image
-        src={logoLight || "/doco-logos/doco_black_on_transparent_no_text.png"}
+        src={logoLight || "/doco-logos/black.png"}
         alt="Doco Logo"
-        width={24}
-        height={24}
-        className="block h-6 w-6 object-contain dark:hidden"
+        width={160}
+        height={160}
+        className="block h-24 w-24 object-contain dark:hidden"
         priority
       />
     </>
