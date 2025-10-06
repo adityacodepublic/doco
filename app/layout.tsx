@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { AlertSystem } from "@/components/ui/alert-system";
 import { ThemeProvider } from "@/components/theme-provider";
 import { DynamicSiteHeader } from "@/components/dynamic-site-header";
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden antialiased`}>
+        <Analytics />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <div className="min-h-screen w-full max-w-full bg-sidebar">
             <MorphikProvider>
