@@ -1217,53 +1217,62 @@ export function PDFViewer({ apiBaseUrl, authToken, initialDocumentId, onChatTogg
             ) : (
               <ScrollArea className="min-h-0 flex-1 px-4">
                 <div className="grid gap-4">
-                  {availableDocuments.map(doc => (
-                    <Card
-                      key={doc.id}
-                      className="cursor-pointer p-6 transition-colors hover:bg-accent"
-                      onClick={() => handleDocumentSelect(doc)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex min-w-0 flex-1 items-start gap-4">
-                          <FileText className="mt-1 h-6 w-6 flex-shrink-0 text-muted-foreground" />
-                          <div className="min-w-0 flex-1">
-                            <h4 className="truncate text-lg font-medium">{doc.filename}</h4>
-                            <div className="mt-2 flex items-center gap-6 text-sm text-muted-foreground">
-                              {doc.folder_name && (
-                                <span className="flex items-center gap-1">
-                                  <FolderOpen className="h-4 w-4" />
-                                  {doc.folder_name}
-                                </span>
-                              )}
-                              {doc.created_at && (
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-4 w-4" />
-                                  {new Date(doc.created_at).toLocaleDateString()}
-                                </span>
-                              )}
+                  {[...availableDocuments]
+                    .sort((a, b) => {
+                      // If either created_at is missing, put those last
+                      if (!a.created_at && !b.created_at) return 0;
+                      if (!a.created_at) return 1;
+                      if (!b.created_at) return -1;
+                      // Newest first
+                      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                    })
+                    .map(doc => (
+                      <Card
+                        key={doc.id}
+                        className="cursor-pointer p-6 transition-colors hover:bg-accent"
+                        onClick={() => handleDocumentSelect(doc)}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex min-w-0 flex-1 items-start gap-4">
+                            <FileText className="mt-1 h-6 w-6 flex-shrink-0 text-muted-foreground" />
+                            <div className="min-w-0 flex-1">
+                              <h4 className="truncate text-lg font-medium">{doc.filename}</h4>
+                              <div className="mt-2 flex items-center gap-6 text-sm text-muted-foreground">
+                                {doc.folder_name && (
+                                  <span className="flex items-center gap-1">
+                                    <FolderOpen className="h-4 w-4" />
+                                    {doc.folder_name}
+                                  </span>
+                                )}
+                                {doc.created_at && (
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="h-4 w-4" />
+                                    {new Date(doc.created_at).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
+                          <div className="flex flex-shrink-0 items-center gap-2">
+                            <Badge
+                              variant={
+                                doc.status === "completed"
+                                  ? "default"
+                                  : doc.status === "processing"
+                                    ? "secondary"
+                                    : "secondary"
+                              }
+                              className="text-xs"
+                            >
+                              {doc.status === "completed" && <CheckCircle className="mr-1 h-3 w-3" />}
+                              {doc.status === "processing" && <Clock className="mr-1 h-3 w-3" />}
+                              {doc.status === "failed" && <AlertCircle className="mr-1 h-3 w-3" />}
+                              {doc.status}
+                            </Badge>
+                          </div>
                         </div>
-                        <div className="flex flex-shrink-0 items-center gap-2">
-                          <Badge
-                            variant={
-                              doc.status === "completed"
-                                ? "default"
-                                : doc.status === "processing"
-                                  ? "secondary"
-                                  : "destructive"
-                            }
-                            className="text-xs"
-                          >
-                            {doc.status === "completed" && <CheckCircle className="mr-1 h-3 w-3" />}
-                            {doc.status === "processing" && <Clock className="mr-1 h-3 w-3" />}
-                            {doc.status === "failed" && <AlertCircle className="mr-1 h-3 w-3" />}
-                            {doc.status}
-                          </Badge>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    ))}
                 </div>
               </ScrollArea>
             )}

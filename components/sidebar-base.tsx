@@ -92,9 +92,16 @@ export function BaseSidebar({
   ...props
 }: BaseSidebarProps) {
   const { apiBaseUrl, authToken, isLocal } = useMorphik();
-  const { state, setOpen, toggleSidebar } = useSidebar();
+  const { state, setOpen, toggleSidebar, isMobile, setOpenMobile } = useSidebar();
   const router = useRouter();
   const pathname = usePathname() || "/";
+
+  // Helper to close mobile sidebar on navigation
+  const closeMobileSidebar = React.useCallback(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [isMobile, setOpenMobile]);
 
   const userData = {
     name: userProfile?.name || "Morphik User",
@@ -289,6 +296,7 @@ export function BaseSidebar({
                               if (pathname !== "/chat") router.push("/chat");
                               setOpen(true);
                               onChatViewChange?.(true);
+                              closeMobileSidebar();
                             }}
                             isActive={pathname === "/chat"}
                           >
@@ -302,6 +310,7 @@ export function BaseSidebar({
                               if (pathname !== "/settings") router.push("/settings");
                               setOpen(true);
                               onSettingsViewChange?.(true);
+                              closeMobileSidebar();
                             }}
                             isActive={pathname === "/settings"}
                           >
@@ -310,7 +319,7 @@ export function BaseSidebar({
                           </SidebarMenuButton>
                         ) : (
                           <SidebarMenuButton tooltip={item.title} asChild>
-                            <Link href={item.url}>
+                            <Link href={item.url} onClick={closeMobileSidebar}>
                               {item.icon && <item.icon />}
                               <span className="text-md">{item.title}</span>
                             </Link>
@@ -319,7 +328,10 @@ export function BaseSidebar({
                       ) : (
                         <SidebarMenuButton
                           tooltip={item.title}
-                          onClick={() => navigation.onItemClick(item)}
+                          onClick={() => {
+                            navigation.onItemClick(item);
+                            closeMobileSidebar();
+                          }}
                           isActive={
                             navigation.type === "section" && "section" in item
                               ? navigation.currentActive === item.section
@@ -350,6 +362,7 @@ export function BaseSidebar({
                                 if (pathname !== "/settings") router.push("/settings");
                                 setOpen(true);
                                 onSettingsViewChange?.(true);
+                                closeMobileSidebar();
                               }}
                               isActive={pathname === "/settings"}
                             >
@@ -358,7 +371,7 @@ export function BaseSidebar({
                             </SidebarMenuButton>
                           ) : (
                             <SidebarMenuButton tooltip={item.title} asChild>
-                              <Link href={item.url}>
+                              <Link href={item.url} onClick={closeMobileSidebar}>
                                 {item.icon && <item.icon />}
                                 <span className="text-md">{item.title}</span>
                               </Link>
@@ -367,7 +380,10 @@ export function BaseSidebar({
                         ) : (
                           <SidebarMenuButton
                             tooltip={item.title}
-                            onClick={() => navigation.onItemClick(item)}
+                            onClick={() => {
+                              navigation.onItemClick(item);
+                              closeMobileSidebar();
+                            }}
                             isActive={
                               navigation.type === "section" && "section" in item
                                 ? navigation.currentActive === item.section

@@ -1505,11 +1505,11 @@ const LearningsSection = React.forwardRef<
         {/* No longer needed - controls will be provided in FolderList */}
 
         {/* Render the FolderList with header at all times when selectedFolder is not null */}
-        <div className="container mx-auto max-w-4xl p-6">
-          <div className="flex flex-col space-y-8">
+        <div className="container mx-auto max-w-4xl p-6 pt-4">
+          <div className="flex flex-col space-y-7">
             {/* Header */}
             <div className="space-y-4">
-              <h1 className="bg-gradient-to-r from-gray-600 to-stone-600 bg-clip-text text-4xl font-semibold text-transparent">
+              <h1 className="bg-gradient-to-r from-gray-800 to-stone-600 bg-clip-text py-2 text-4xl font-semibold text-transparent">
                 Tackling Knowledge Attrition
               </h1>
               <p className="text-xl text-muted-foreground">

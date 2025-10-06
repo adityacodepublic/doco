@@ -108,7 +108,7 @@ export function CardMapping({ cards }: CardMappingProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-12 p-6 lg:p-12">
+    <div className="mx-auto w-full max-w-7xl space-y-12 p-5 lg:p-8">
       {/* Empty state when no cards */}
       {(!cards || cards.length === 0) && (
         <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-stone-100/50 bg-white/80 p-12 text-center backdrop-blur-sm">
@@ -137,7 +137,7 @@ export function CardMapping({ cards }: CardMappingProps) {
       {cards &&
         cards.map((card, cardIndex) => (
           <div key={cardIndex} className="relative">
-            <div className="relative overflow-hidden rounded-2xl border border-stone-100/50 bg-white/80 p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-sm transition-all duration-500 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06),0_12px_32px_rgba(0,0,0,0.08)] lg:p-12">
+            <div className="relative overflow-hidden rounded-2xl border border-stone-100/50 bg-white/80 p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-sm transition-all duration-500 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06),0_12px_32px_rgba(0,0,0,0.08)] lg:p-10">
               <div
                 className="pointer-events-none absolute inset-0 opacity-[0.03] mix-blend-overlay"
                 style={{

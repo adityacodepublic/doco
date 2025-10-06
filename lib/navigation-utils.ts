@@ -45,10 +45,6 @@ export const baseMainNavItems: Omit<BaseNavItem, "type">[] = [
     icon: IconFiles,
   },
   {
-    title: "PDF Viewer",
-    icon: IconFileText,
-  },
-  {
     title: "Search",
     icon: IconSearch,
   },
@@ -59,8 +55,16 @@ export const baseMainNavItems: Omit<BaseNavItem, "type">[] = [
   },
   { title: "Notifications", icon: BellDot },
   {
+    title: "Learnings",
+    icon: IconBook,
+  },
+  {
     title: "Knowledge Graphs",
     icon: IconShare,
+  },
+  {
+    title: "PDF Viewer",
+    icon: IconFileText,
   },
   {
     title: "Workflows",
@@ -69,10 +73,6 @@ export const baseMainNavItems: Omit<BaseNavItem, "type">[] = [
   {
     title: "Connectors",
     icon: IconPlugConnected,
-  },
-  {
-    title: "Learnings",
-    icon: IconBook,
   },
 ];
 
@@ -110,21 +110,21 @@ export const createUrlNavigation = (onChatClick: () => void, onSettingsClick?: (
       index === 0
         ? "/documents"
         : index === 1
-          ? "/pdf"
+          ? "/search"
           : index === 2
-            ? "/search"
+            ? "/chat"
             : index === 3
-              ? "/chat"
+              ? "/notifications"
               : index === 4
-                ? "/notifications"
+                ? "/learnings"
                 : index === 5
                   ? "/graphs"
                   : index === 6
-                    ? "/workflows"
+                    ? "/pdf"
                     : index === 7
-                      ? "/connections"
+                      ? "/workflows"
                       : index === 8
-                        ? "/learnings"
+                        ? "/connections"
                         : "/",
   })),
   secondaryItems: baseSecondaryNavItems.map((item, index) => ({
@@ -168,21 +168,21 @@ export const createSectionNavigation = (
       index === 0
         ? "documents"
         : index === 1
-          ? "pdf"
+          ? "search"
           : index === 2
-            ? "search"
+            ? "chat"
             : index === 3
-              ? "chat"
+              ? "notifications"
               : index === 4
-                ? "notifications"
+                ? "/learnings"
                 : index === 5
                   ? "graphs"
                   : index === 6
-                    ? "/workflows"
+                    ? "pdf"
                     : index === 7
-                      ? "/connections"
+                      ? "/workflows"
                       : index === 8
-                        ? "/learnings"
+                        ? "/connections"
                         : "/",
   })),
   secondaryItems: baseSecondaryNavItems.map((item, index) => ({

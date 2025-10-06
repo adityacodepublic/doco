@@ -32,12 +32,20 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen">
-      <div className="flex flex-wrap items-center justify-between">
-        <h2 className="mb-4 text-2xl font-bold">Notifications Management</h2>
+      <div className="flex flex-wrap items-center justify-between p-5">
+        <h1 className="bg-gradient-to-r from-gray-800 to-stone-600 bg-clip-text py-2 text-4xl font-semibold text-transparent">
+          Unified Notification Hub
+        </h1>
         <div className="mb-4">
           <NotificationsModal initialValues={questions} />
         </div>
       </div>
+      <p className="text-xl text-muted-foreground">
+        Streamline critical updates and announcements across departments. <br />
+        Instantly surface actionable information, break down communication silos, and ensure compliance by centralizing
+        notifications—from regulatory bulletins to shift-specific alerts—so nothing is missed and everyone stays
+        informed.
+      </p>
       <Separator />
       <CardMapping cards={notifications} />
     </main>
